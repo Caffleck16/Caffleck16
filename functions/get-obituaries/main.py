@@ -1,37 +1,37 @@
 import json
 import requests
+import boto3
 from requests_toolbelt import MultipartEncoder
 # add your get-obituaries function here
 # Set the AWS endpoint URL
+dynamodb_resource = boto3.resource("dynamodb")
+table = dynamodb_resource.Table("obituaries-30145805")
 aws_endpoint_url = 'https://dynamodb.ca-central-1.amazonaws.com'
-table_name = 'obituaries-30145805'
 
-def get_obituaries(event):
-    # Extract the email and access token from the event
-    query = event['queryStringParameters']
+def lambda_handler(event, context):
 
-    # Query the DynamoDB table to get the obituaries for the specified email
-    payload = {'TableName': table_name}
-    response = requests.post(f'{aws_endpoint_url}/', json=payload)
-    if response.status_code != 200:
+    http_method = event["requestContext"]["http"]["method"].lower()
+    if http_method == "get":
+        # Query the DynamoDB table to get the obituaries for the specified email
+        response = table.scan()
+
+        # Return the obituaries as a JSON response
         return {
-            'statusCode': 500,
+            'statusCode': 200,
             'headers': {
                 'Content-Type': 'application/json'
             },
-            'body': json.dumps({'error': 'Error getting obituaries'})
+            'body': json.dumps(response['Items'])
         }
-
-    # Extract the obituaries from the DynamoDB response
-    obituaries = []
-    for item in response.json()['Items']:
-        obituaries.append({'name': item['name']['S'], 'date_of_birth': item['date_of_birth']['S'], 'date_of_death': item['date_of_death']['S']})
-
-    # Return the obituaries as a JSON response
-    return {
-        'statusCode': 200,
-        'headers': {
-            'Content-Type': 'application/json'
-        },
-        'body': json.dumps(obituaries)
+    
+    else:
+        # Return a 404 error if the request was not a get
+        return {
+            "statusCode": 404,
+            "headers": {
+                "Content-Type": "application/json"
+            },
+            "body": json.dumps({
+                "error": "Item not found"
+            })
     }

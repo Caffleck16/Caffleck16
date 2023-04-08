@@ -64,7 +64,7 @@ EOF
 
 
 resource "aws_iam_policy" "dynamo" {
-  name = "lambda_dynamo"
+  name = "obituary_dynamo"
   description = "Interaction with lambda and dynamo"
 
   policy = <<EOF
@@ -83,7 +83,7 @@ resource "aws_iam_policy" "dynamo" {
 				"dynamodb:UpdateItem",
         "dynamodb:DeleteItem"
       ],
-      "Resource": ""
+      "Resource": "arn:aws:dynamodb:ca-central-1:455720929055:table/obituaries-30145805"
     }
   ]
 }
@@ -91,7 +91,7 @@ EOF
 }
 
 resource "aws_iam_policy" "logs" {
-  name        = "lambda-logging"
+  name        = "obituary-logging"
   description = "IAM policy for logging from a lambda"
 
   policy = <<EOF
@@ -112,9 +112,31 @@ resource "aws_iam_policy" "logs" {
 EOF
 }
 
+resource "aws_iam_policy" "ssm" {
+  name        = "ssm-lambda"
+  description = "For accessing ssm parameters"
+
+  policy = <<EOF
+{
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "ssm:GetParameter",
+          "ssm:GetParameters",
+          "ssm:GetParametersByPath"
+        ],
+        "Resource" : "*"
+      }
+    ]
+  }
+  EOF
+}
+
 resource "aws_lambda_function" "get-obituaries-30139961" {
   s3_bucket     = aws_s3_bucket.lambda.bucket
-  s3_key        = "get-obituaries-30139961/get-obituaries.zip"
+  s3_key        = "get-obituaries/get-obituaries.zip"
   role          = aws_iam_role.get-lambda.arn
   function_name = local.get_name
   handler       = local.lambda_handler
@@ -125,10 +147,11 @@ resource "aws_lambda_function" "get-obituaries-30139961" {
 
 resource "aws_lambda_function" "create-obituary-30139961" {
   s3_bucket     = aws_s3_bucket.lambda.bucket
-  s3_key        = "create-obituary-30139961/create-obituary.zip"
+  s3_key        = "create-obituary/create-obituary.zip"
   role          = aws_iam_role.create-lambda.arn
   function_name = local.create_name
   handler       = local.lambda_handler
+  timeout       = 300
 
 
   runtime = "python3.7"
@@ -158,6 +181,21 @@ resource "aws_iam_role_policy_attachment" "get-lambda_logs" {
 resource "aws_iam_role_policy_attachment" "create-lambda_logs" {
   role       = aws_iam_role.create-lambda.name
   policy_arn = aws_iam_policy.logs.arn
+}
+
+resource "aws_iam_role_policy_attachment" "create-lambda_dynamo" {
+  role       = aws_iam_role.create-lambda.name
+  policy_arn = aws_iam_policy.dynamo.arn
+}
+
+resource "aws_iam_role_policy_attachment" "get-lambda_dynamo" {
+  role       = aws_iam_role.get-lambda.name
+  policy_arn = aws_iam_policy.dynamo.arn
+}
+
+resource "aws_iam_role_policy_attachment" "create-lambda_ssm" {
+  role       = aws_iam_role.create-lambda.name
+  policy_arn = aws_iam_policy.ssm.arn
 }
 
 resource "aws_lambda_function_url" "get-url" {

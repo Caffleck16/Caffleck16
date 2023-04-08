@@ -1,0 +1,6 @@
+functions:
+  get-obituaries:
+    image: lambci/lambda:build-python3.7
+    requirements: ./get-obituaries/requirements.txt
+    include:
+        - ./get-obituaries/main.py
