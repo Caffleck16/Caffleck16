@@ -38,24 +38,18 @@ def generate_cloudinary_signature(params):
     sorted_params = sorted(params.items())
     to_sign = '&'.join(['='.join(kv) for kv in sorted_params])
     to_sign += cloudinary_secret_key
-    print(to_sign)
     signature = hashlib.sha1(to_sign.encode('utf-8')).hexdigest()
     return signature
 
 def lambda_handler(event, context):
     try:
         # read the data from the request body
-        print(event)
         body = event['body']
         if event['isBase64Encoded']:
             body = base64.b64decode(body)
         content_type = event["headers"]["content-type"]
-        print(body)
-        print(content_type)
         data = decoder.MultipartDecoder(body, content_type)
-        #data = decoder.MultipartDecoder.from_response(event)
         obituary_data = [part.content for part in data.parts]
-        print(obituary_data)
 
         # parse the obituary data
         name = obituary_data[1].decode()
@@ -79,7 +73,6 @@ def lambda_handler(event, context):
             "Authorization": f"Bearer {chatgpt_api_key}"
         }
         chatgpt_response = requests.post(chatgpt_url, data=json.dumps(chatgpt_data), headers=chatgpt_headers)
-        print(chatgpt_response.json())
         chatgpt_obituary = chatgpt_response.json()['choices'][0]['text'].strip()
 
         # convert the obituary text to speech using Amazon Polly
@@ -118,9 +111,6 @@ def lambda_handler(event, context):
                 "file": f
             }
             cloudinary_image_response = requests.post(cloudinary_url, data=cloudinary_payload, files=cloudinary_files)
-        print(cloudinary_api_key)
-        print(cloudinary_image_response.json())
-        print(cloudinary_audio_response.json())
         image_url = cloudinary_image_response.json()['url']
 
         # get the public URL of the uploaded speech mp3 file
