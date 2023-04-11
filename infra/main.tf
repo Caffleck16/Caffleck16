@@ -198,6 +198,12 @@ resource "aws_iam_role_policy_attachment" "create-lambda_ssm" {
   policy_arn = aws_iam_policy.ssm.arn
 }
 
+resource "aws_iam_role_policy_attachment" "create-lambda_polly" {
+  role       = aws_iam_role.create-lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonPollyFullAccess"
+}
+
+
 resource "aws_lambda_function_url" "get-url" {
   function_name      = aws_lambda_function.get-obituaries-30139961.function_name
   authorization_type = "NONE"
