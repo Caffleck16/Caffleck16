@@ -38,11 +38,12 @@ def generate_cloudinary_signature(params):
     sorted_params = sorted(params.items())
     to_sign = '&'.join(['='.join(kv) for kv in sorted_params])
     to_sign += cloudinary_secret_key
-    signature = hmac.new(cloudinary_secret_key.encode('utf-8'), to_sign.encode('utf-8'), hashlib.sha256).hexdigest()
+    print(to_sign)
+    signature = hashlib.sha1(to_sign.encode('utf-8')).hexdigest()
     return signature
 
 def lambda_handler(event, context):
-    #try:
+    try:
         # read the data from the request body
         print(event)
         body = event['body']
@@ -60,11 +61,11 @@ def lambda_handler(event, context):
         name = obituary_data[1].decode()
         born_year = obituary_data[2].decode()
         died_year = obituary_data[3].decode()
+        id =  obituary_data[4].decode()
         key = name + ".png"
-        file_name = os.path.join("/tmp", key)
-        #with open(key, "wb") as f:
-        #        f.write(obituary_data[0])
-
+        file_name = os.path.join("/tmp/", key)
+        with open(file_name, "wb") as f:
+            f.write(obituary_data[0])
         # generate the obituary text using ChatGPT
         chatgpt_url = 'https://api.openai.com/v1/completions'
         chatgpt_prompt = f'write an obituary about a fictional character named {name} who was born on {born_year} and died on {died_year}.'
@@ -88,28 +89,35 @@ def lambda_handler(event, context):
             OutputFormat='mp3',
             VoiceId='Joanna'
         )
-        speech_content = speech_response['AudioStream'].read()
 
         # upload the speech mp3 file to Cloudinary
-        cloudinary_url = f"https://api.cloudinary.com/v1_1/{cloudinary_cloud_name}/upload"
-        cloudinary_signature = generate_cloudinary_signature({"public_id" : name, "timestamp" : str(int(time.time()))})
+        timestamp = str(int(time.time()))
+        cloudinary_url = f"https://api.cloudinary.com/v1_1/{cloudinary_cloud_name}/video/upload"
+        cloudinary_signature = generate_cloudinary_signature({"public_id" : name, "timestamp" : timestamp})
         cloudinary_payload = {
-            "file": (name + '.mp3', speech_content, 'audio/mp3'),
-            "api_key": cloudinary_api_key,
-            "timestamp": str(int(time.time())),
-            "signature": cloudinary_signature
+            "api_key": 972139744211255,
+            "public_id": name,
+            "signature": cloudinary_signature,
+            "timestamp": timestamp
         }
-        cloudinary_audio_response = requests.post(cloudinary_url, files=cloudinary_payload)
+        cloudinary_files = {
+            "file": speech_response['AudioStream']
+        }
+        cloudinary_audio_response = requests.post(cloudinary_url, data=cloudinary_payload, files=cloudinary_files)
 
+        cloudinary_url = f"https://api.cloudinary.com/v1_1/{cloudinary_cloud_name}/image/upload"
         # Upload image to cloudinary
-        #with open(key, "rb") as f:
-        cloudinary_payload = {
-            "file": (file_name, obituary_data[0]),
-            "api_key": cloudinary_api_key,
-            "timestamp": str(int(time.time())),
-            "signature": cloudinary_signature
-        }
-        cloudinary_image_response = requests.post(cloudinary_url, files=cloudinary_payload)
+        with open(file_name, "rb") as f:
+            cloudinary_payload = {
+                "api_key": cloudinary_api_key,
+                "public_id": name,
+                "signature": cloudinary_signature,
+                "timestamp": timestamp
+            }
+            cloudinary_files = {
+                "file": f
+            }
+            cloudinary_image_response = requests.post(cloudinary_url, data=cloudinary_payload, files=cloudinary_files)
         print(cloudinary_api_key)
         print(cloudinary_image_response.json())
         print(cloudinary_audio_response.json())
@@ -126,6 +134,7 @@ def lambda_handler(event, context):
         table = dynamodb.Table('obituaries-30145805')
         table.put_item(
             Item={
+                'id' : id,
                 'name': name,
                 'born_year': born_year,
                 'died_year': died_year,
@@ -147,7 +156,7 @@ def lambda_handler(event, context):
             }
         }
         return response
-'''
+
     except Exception as e:
         # return an error response
         response_body = {
@@ -162,4 +171,3 @@ def lambda_handler(event, context):
             }
         }
         return response
-'''
