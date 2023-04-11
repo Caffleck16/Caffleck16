@@ -15,6 +15,7 @@ response = ssm.get_parameters(
         'chatgpt_api_key',
         'cloudinary_api_key',
         'cloudinary_secret_key',
+        'cloudinary_cloud_name',
         'accessKey',
         'secretAccessKey'
     ],
@@ -26,6 +27,7 @@ params = response['Parameters']
 chatgpt_api_key = next(p['Value'] for p in params if p['Name'] == 'chatgpt_api_key')
 cloudinary_api_key = next(p['Value'] for p in params if p['Name'] == 'cloudinary_api_key')
 cloudinary_secret_key = next(p['Value'] for p in params if p['Name'] == 'cloudinary_secret_key')
+cloudinary_cloud_name = next(p['Value'] for p in params if p['Name'] == 'cloudinary_cloud_name')
 aws_access_key_id = next(p['Value'] for p in params if p['Name'] == 'accessKey')
 aws_secret_access_key = next(p['Value'] for p in params if p['Name'] == 'secretAccessKey')
 region_name = 'ca-central-1'
@@ -40,13 +42,17 @@ def generate_cloudinary_signature(params):
     return signature
 
 def lambda_handler(event, context):
-    try:
+    #try:
         # read the data from the request body
+        print(event)
         body = event['body']
         if event['isBase64Encoded']:
             body = base64.b64decode(body)
-        content_type = event["headers"]["Content-Type"]
+        content_type = event["headers"]["content-type"]
+        print(body)
+        print(content_type)
         data = decoder.MultipartDecoder(body, content_type)
+        #data = decoder.MultipartDecoder.from_response(event)
         obituary_data = [part.content for part in data.parts]
         print(obituary_data)
 
@@ -56,8 +62,8 @@ def lambda_handler(event, context):
         died_year = obituary_data[3].decode()
         key = name + ".png"
         file_name = os.path.join("/tmp", key)
-        with open(key, "wb") as f:
-                f.write(obituary_data[0])
+        #with open(key, "wb") as f:
+        #        f.write(obituary_data[0])
 
         # generate the obituary text using ChatGPT
         chatgpt_url = 'https://api.openai.com/v1/completions'
@@ -72,6 +78,7 @@ def lambda_handler(event, context):
             "Authorization": f"Bearer {chatgpt_api_key}"
         }
         chatgpt_response = requests.post(chatgpt_url, data=json.dumps(chatgpt_data), headers=chatgpt_headers)
+        print(chatgpt_response.json())
         chatgpt_obituary = chatgpt_response.json()['choices'][0]['text'].strip()
 
         # convert the obituary text to speech using Amazon Polly
@@ -84,27 +91,32 @@ def lambda_handler(event, context):
         speech_content = speech_response['AudioStream'].read()
 
         # upload the speech mp3 file to Cloudinary
-        cloudinary_url = f"https://api.cloudinary.com/v1_1/{cloudinary_api_key}/upload"
+        cloudinary_url = f"https://api.cloudinary.com/v1_1/{cloudinary_cloud_name}/upload"
         cloudinary_signature = generate_cloudinary_signature({"public_id" : name, "timestamp" : str(int(time.time()))})
         cloudinary_payload = {
             "file": (name + '.mp3', speech_content, 'audio/mp3'),
-            "upload_preset": "obituaries",
+            "api_key": cloudinary_api_key,
+            "timestamp": str(int(time.time())),
             "signature": cloudinary_signature
         }
         cloudinary_audio_response = requests.post(cloudinary_url, files=cloudinary_payload)
 
         # Upload image to cloudinary
-        with open(key, "rb") as f:
-            cloudinary_payload = {
-                "file": (file_name, f),
-                "upload_preset": "obituaries",
-                "signature": cloudinary_signature
-            }
+        #with open(key, "rb") as f:
+        cloudinary_payload = {
+            "file": (file_name, obituary_data[0]),
+            "api_key": cloudinary_api_key,
+            "timestamp": str(int(time.time())),
+            "signature": cloudinary_signature
+        }
         cloudinary_image_response = requests.post(cloudinary_url, files=cloudinary_payload)
-        image_url = cloudinary_image_response.json()['secure_url']
+        print(cloudinary_api_key)
+        print(cloudinary_image_response.json())
+        print(cloudinary_audio_response.json())
+        image_url = cloudinary_image_response.json()['url']
 
         # get the public URL of the uploaded speech mp3 file
-        speech_url = cloudinary_audio_response.json()['secure_url']
+        speech_url = cloudinary_audio_response.json()['url']
 
         # add the e_art:zorro enhancement to the image URL
         image_url = image_url.replace('/upload/', '/upload/e_art:zorro/')
@@ -135,7 +147,7 @@ def lambda_handler(event, context):
             }
         }
         return response
-
+'''
     except Exception as e:
         # return an error response
         response_body = {
@@ -150,3 +162,4 @@ def lambda_handler(event, context):
             }
         }
         return response
+'''
