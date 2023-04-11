@@ -15,6 +15,9 @@ a {
   color: inherit;
   text-decoration: none;
 }
+input[type="file"] {
+  display: none;
+}
 
 #title {
   background-color: white;
@@ -54,22 +57,106 @@ a {
 }
 .NA {
   font-weight: bolder;
-  color: rgb(172, 172, 172);
+  color: rgba(172, 172, 172, 0.507);
 }
 .create {
+  transition: background-color 0.5s ease;
   position: fixed;
   top:0;
-  padding-top: 300px;
   width: 100%;
   height: 100%;
   background-color: rgba(255, 255, 255, 0.8);
+}
+
+.input-holder {
+  padding-top: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  
+}
+.exit {
+  padding-top: 10px;
+  padding-right: 5px;
+  font-size: x-large;
+  cursor: pointer;
+  color: grey;
+  float: right;
+}
 
+.exit label {
+  cursor: pointer;
+}
+.edit-file {
+  padding-top: 50px;
+}
+.edit-name {
+  padding-top: 10px;
+}
+.edit-name input {
+  width: 600px;
+  height: 50px;
+  padding-left: 20px;
+  border-radius: 10px;
+  border-color: rgba(128, 128, 128, 0.705);
+}
+.edit-name input:focus {
+  outline: none;
+  border-color: cyan;
+}
+.edit-date {
+  padding-top: 20px;
+  display: flex;
+  padding-bottom: 20px;
+}
+.edit-date input {
+  border: 0px;
+}
+.edit-date input:focus {
+  outline: none;
 }
 .textHolder {
   width: 150px;
+}
+.custom-file-upload {
+  cursor: pointer;
+  text-decoration: none;
+  transition: text-decoration 0.3s ease;
+}
+.custom-file-upload:hover p {
+  text-decoration: underline;
+}
+.submit {
+  display: flex;
+  width: 615px;
+  height: 60px;
+  padding-left: 10px;
+  border-radius: 10px;
+  border-color: white;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(15, 150, 94);
+  cursor: pointer;
+  color: white;
+}
+.submit label {
+  cursor: pointer;
+}
+.submit:hover {
+  background-color: rgb(78, 78, 78);
+}
+.loading {
+  display: flex;
+  width: 615px;
+  height: 60px;
+  padding-left: 10px;
+  border-radius: 10px;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(78, 78, 78);
+  color: white;
 }
 
 @media (max-width: 768px) {
