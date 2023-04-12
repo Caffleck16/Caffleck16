@@ -1,14 +1,21 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 const Layout = () => {
     const [ obs, setObs ] = useState([]);
     const [ id, setId ] = useState();
     const navigate = useNavigate();
     useEffect(() => {
         // fetch on program load
-        
-
+        axios.get('https://sxpmm6g35ephjnluz2stawhh7a0lvewi.lambda-url.ca-central-1.on.aws/')
+        .then((response) => {
+            console.log(response);
+            const data = JSON.stringify(response.data)
+            setObs(JSON.parse(data))
+        }, (error) => {
+            console.log(error);
+        });
     }, [])
     function newOb() {
         const id = uuidv4();

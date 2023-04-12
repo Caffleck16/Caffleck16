@@ -1,60 +1,60 @@
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import  axios  from "axios";
 import Ob from "../Ob.png";
 const EditOb = () => {
     const navigate = useNavigate();
-    const [prompt, setPrompt] = useState("");
-    const [response, setResponse] = useState("");
-    var [obs, setObs] = useOutletContext()[0];
+    var [obs, setObs] = useOutletContext()[0]; // probably not needed
     const [id, setID] = useOutletContext()[1];
     const [loading, setLoading] = useState(false);
-    const [image, setImage] = useState();
-    const [name, setName] = useState();
-    const [born, setBorn] = useState();
-    const [died, setDied] = useState();
+    const [image, setImage] = useState("");
+    const [name, setName] = useState("");
+    const [born, setBorn] = useState("");
+    const [died, setDied] = useState("");
     var curOb = {
-        image:null,
-        name:null,
-        born:null,
-        died:null,
-        description:null
+        image:"",
+        name:"",
+        born:"",
+        died:"",
+        id:""
     }
     function returnHome() {
         navigate("/");
     }
-    // for (var i in obs) {
-    //     if (obs[i].id === id) {
-    //         curOb = obs[i];
-    //     }
-    // }
     function handleSave() {
-        if (inputValid()) {
+        if (!inputValid()) {
             setLoading(true);
-            setPrompt("write an obituary about a fictional character named " + {name} + " who was born on " + {born} + " and died on " + {died} + " .")
-            axios
-                .post("/chat", { prompt })
-                .then((res) => {
-
-                    setResponse(res.data);
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
-            
             curOb.image = image;
             curOb.name = name;
             curOb.born = born;
             curOb.died = died;
-            curOb.description = response;
-            console.log(loading);
+            curOb.id = id;
+            axios.post(
+                "https://qauzveiybakp6h42xomb6kpjbe0boool.lambda-url.ca-central-1.on.aws/",
+                curOb
+            )
+            .then((response) => {
+                console.log(response);
+            }, (error) => {
+                console.log(error);
+            });
+            setLoading(false);
+            // two ideas: call a function that lives in Layout to fetch data or do it right here right now.
+            navigate("/home");
         }
         
     }
     function inputValid() {
         console.log("testing input");
-        console.log("input incorrect");
+        if (name === "" || died === "" || born === "") {
+            console.log("input incorrect");
+            return true;
+        }
+        if (image === '' || image === null) {
+            return true;
+        }
         return false;
+        
     }
     return ( 
         <>
@@ -71,16 +71,16 @@ const EditOb = () => {
                         <label for="file-upload" class="custom-file-upload">
                             <p>Select an image for the deceased</p>
                         </label>
-                        <input type="file" id="file-upload" onChange={(e) => setImage(e.target.value)}/>
+                        <input type="file" accept=".png, .jpg, .jpeg" id="file-upload" onChange={(e) => setImage(e.target.value)}/>
                     </div>
                     <div className="edit-name">
                         <input type="name" placeholder="Name of the deceased" onChange={(e) => setName(e.target.value)} required></input>
                     </div>
                     <div className="edit-date">
                         <p><i>Born:&nbsp;&nbsp;&nbsp;</i></p>
-                        <input type="datetime-local" onChange={(e) => setBorn(e.target.value)} required></input>
+                        <input type="datetime-local" value={ born } onChange={(e) => setBorn(e.target.value)} required></input>
                         <p><i>&nbsp;&nbsp;&nbsp;Died:&nbsp;&nbsp;&nbsp;</i></p>
-                        <input type="datetime-local" onChange={(e) => setDied(e.target.value)} required></input>
+                        <input type="datetime-local" value={ died }onChange={(e) => setDied(e.target.value)} required></input>
                     </div>
                     <div>
                     { loading ? <div className="loading">Please wait. It's not like they're gonna be late for something ...</div> :
