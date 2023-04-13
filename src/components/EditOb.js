@@ -18,9 +18,9 @@ const EditOb = () => {
         navigate("/");
     }
     const options = {
-        year: "numeric",
         month: "long",
         day: "numeric",
+        year: "numeric",
     };
     
     const formatDate = (when) => {
@@ -31,41 +31,45 @@ const EditOb = () => {
         return formatted;
     };
     // Need a way of keeping the obituary card extended when creating, but un-extending on refresh
-    function handleSave() {
+    async function handleSave() {
+        console.log(image);
+        console.log(name);
+        console.log(born);
+        console.log(died);
+        console.log(id);
         if (!inputValid()) {
             setLoading(true);
             const data = new FormData();
-            setDied(formatDate(died));
-            setBorn(formatDate(born));
-            data.append("image", image)
-            data.append("name", name)
-            data.append("born", born)
-            data.append("died", died)
-            data.append("id", id)
-            // Should born and died be formatted here to be the correct date type?
-            axios.post(
-                "https://qauzveiybakp6h42xomb6kpjbe0boool.lambda-url.ca-central-1.on.aws/",
-                data
-            )
-            .then((response) => {
-                console.log(response);
-            }, (error) => {
-                console.log(error);
-            });
-            setLoading(false);
-            // two ideas: call a function that lives in Layout to fetch data or do it right here right now.
-            axios.get('https://sxpmm6g35ephjnluz2stawhh7a0lvewi.lambda-url.ca-central-1.on.aws/')
-            .then((response) => {
-                console.log(response);
-                const res = JSON.stringify(response.data);
+            setDied(formatDate(died.slice(0, 10)));
+            setBorn(formatDate(born.slice(0, 10)));
+            data.append("image", image);
+            data.append("name", name);
+            data.append("born", born);
+            data.append("died", died);
+            data.append("id", id);
+            try {
+                const responsePost = await axios.post(
+                    "https://qauzveiybakp6h42xomb6kpjbe0boool.lambda-url.ca-central-1.on.aws/",
+                    data
+                );
+                console.log(responsePost);
+                const responseGet = await  axios.get('https://sxpmm6g35ephjnluz2stawhh7a0lvewi.lambda-url.ca-central-1.on.aws/');
+                console.log(responseGet); 
+                const res = JSON.stringify(responseGet.data);
                 setObs(JSON.parse(res));
-            }, (error) => {
-                console.log(error);
-            });
-            if (!populated) {
-                setPopulated(true);
+
+                if (!populated) {
+                    setPopulated(true);
+                }
+                navigate("/");
+            } catch (error) {
+                console.log(error) 
+                alert("an error occured")
+                
+            } finally {
+                setLoading(false);
             }
-            navigate("/");
+            
         }
         
     }
@@ -84,8 +88,10 @@ const EditOb = () => {
     }
     const handleFileChange = (e) => {
         const file = e.target.files[0];
+        const reader = new FileReader();
         if (file) {
             setFileName(file.name);
+            setImage(file);
         } else {
             setFileName(null);
         }
@@ -102,7 +108,7 @@ const EditOb = () => {
                     </div>
                         <img className="textHolder" src={Ob} alt=""/> 
                     <div className="edit-file">
-                        <label for="file-upload" class="custom-file-upload">
+                        <label for="file-upload" className="custom-file-upload">
                             <p>
                                 Select and image for the deceased{' '}
                                 {fileName && <span className="highlight">({fileName})</span>}

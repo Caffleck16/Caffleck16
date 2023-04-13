@@ -6,23 +6,36 @@ import axios from "axios";
 const Layout = () => {
     const [ obs, setObs ] = useState([]);
     const [ id, setId ] = useState();
-    const [ populated, setPopulated ] = useState(false);
+    const [ populated, setPopulated ] = useState(true);
     const navigate = useNavigate();
     useEffect(() => {
-        // fetch on program load
-        axios.get('https://sxpmm6g35ephjnluz2stawhh7a0lvewi.lambda-url.ca-central-1.on.aws/')
-        .then((response) => {
-            console.log(response);
-            const data = JSON.stringify(response.data)
-            setObs(JSON.parse(data))
-        }, (error) => {
-            console.log(error);
-        });
+        console.log(obs);
+        const fetch = async () => {
+            try {
+                const response = await axios.get('https://sxpmm6g35ephjnluz2stawhh7a0lvewi.lambda-url.ca-central-1.on.aws/');
+                console.log(response);
+                const data = JSON.stringify(response.data);
+                setObs(JSON.parse(data));
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        fetch();
         console.log(obs.length);
+        if (!(obs.length > 0)) {
+            setPopulated(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        console.log(obs);
         if (obs.length > 0) {
             setPopulated(true);
+        } else {
+            setPopulated(false);
         }
-    }, [])
+    }, [obs]);
+
     function newOb() {
         const id = uuidv4();
         setId(id);
@@ -43,18 +56,65 @@ const Layout = () => {
             </div>
             <div className="obituaries">
                 {
-                    populated ? <div className="NA">No Obituary Yet</div> :
-                    obs.map((ob) => (
-                        <Ob
-                            id = {ob.id}
-                            name = {ob.name}
-                            born = {ob.born_year}
-                            died = {ob.died_year}
-                            image_url = {ob.image_url}
-                            obituary = {ob.obituary}
-                            speech_url = {ob.speech_url}
-                        /> 
-                    ))
+                    !populated ? <div className="NA">No Obituary Yet</div> :
+                    <>
+                        <div className="col1">
+                           {obs.map((ob, index) => (
+                            index % 4 == 0 ? 
+                            <Ob
+                                id = {ob.id}
+                                name = {ob.name}
+                                born = {ob.born_year}
+                                died = {ob.died_year}
+                                image_url = {ob.image_url}
+                                obituary = {ob.obituary}
+                                speech_url = {ob.speech_url}
+                            /> : <></>
+                           ))} 
+                        </div>
+                        <div className="col2">
+                            {obs.map((ob, index) => (
+                            index % 4 == 1 ? 
+                            <Ob
+                                id = {ob.id}
+                                name = {ob.name}
+                                born = {ob.born_year}
+                                died = {ob.died_year}
+                                image_url = {ob.image_url}
+                                obituary = {ob.obituary}
+                                speech_url = {ob.speech_url}
+                            /> : <></>
+                           ))}
+                        </div>
+                        <div className="col3">
+                            {obs.map((ob, index) => (
+                            index % 4 == 2 ? 
+                            <Ob
+                                id = {ob.id}
+                                name = {ob.name}
+                                born = {ob.born_year}
+                                died = {ob.died_year}
+                                image_url = {ob.image_url}
+                                obituary = {ob.obituary}
+                                speech_url = {ob.speech_url}
+                            /> : <></>
+                           ))}
+                        </div>
+                        <div className="col4">
+                            {obs.map((ob, index) => (
+                            index % 4 == 3 ? 
+                            <Ob
+                                id = {ob.id}
+                                name = {ob.name}
+                                born = {ob.born_year}
+                                died = {ob.died_year}
+                                image_url = {ob.image_url}
+                                obituary = {ob.obituary}
+                                speech_url = {ob.speech_url}
+                            /> : <></>
+                           ))}
+                        </div>
+                    </>
                 }
             </div>
         </> 
