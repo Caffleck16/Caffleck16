@@ -207,6 +207,10 @@ input[type="file"] {
   cursor: pointer;
   margin-bottom: 15px;
 }
+.highlight {
+  background-color: lightgrey;
+  
+}
 
 @media (max-width: 768px) {
 

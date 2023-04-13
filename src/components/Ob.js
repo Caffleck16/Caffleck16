@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 const Ob = ({ id, name, born, died, image_url, obituary, speech_url }) => {
-    const [selected, setSelected] = useState(false);
+    const [selected, setSelected] = useState(true);
     const [symbol, setSymbol] = useState("&#9654;");
     const [audio, setAudio] = useState(new Audio(speech_url));
     useEffect(() => {
@@ -8,6 +8,7 @@ const Ob = ({ id, name, born, died, image_url, obituary, speech_url }) => {
         audio.onended = () => {
             setSymbol("&#9654;");
         }
+        setSelected(false);
     }, []);
     const handleClick = () => {
         console.log(audio.paused);
@@ -27,7 +28,7 @@ const Ob = ({ id, name, born, died, image_url, obituary, speech_url }) => {
             <img className="obPic" src={ image_url } onClick={ handleImgClick }></img>
             <h2 className="obName">{ name }</h2>
             <h4 className="obLife">{ born } - { died }</h4>
-            {selected ? <div></div> :
+            {!selected ? <div></div> :
             <>
                 <h6 className="obOb"> { obituary } </h6>
                 <button className="audioPlayer" onClick={ handleClick }>

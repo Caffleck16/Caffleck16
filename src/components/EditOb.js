@@ -5,20 +5,38 @@ import Ob from "../Ob.png";
 const EditOb = () => {
     const navigate = useNavigate();
     const [obs, setObs] = useOutletContext()[0];
+    const time = new Date();
+    const [fileName, setFileName] = useState(null)
     const [id, setID] = useOutletContext()[1];
     const [populated, setPopulated] = useOutletContext()[2];
     const [loading, setLoading] = useState(false);
     const [image, setImage] = useState("");
     const [name, setName] = useState("");
     const [born, setBorn] = useState("");
-    const [died, setDied] = useState("");
+    const [died, setDied] = useState(() => new Date(time.getTime() - time.getTimezoneOffset() * 60000).toISOString().slice(0, 19));
     function returnHome() {
         navigate("/");
     }
+    const options = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    };
+    
+    const formatDate = (when) => {
+        const formatted = new Date(when).toLocaleString("en-US", options);
+        if (formatted === "Invalid Date") {
+            return "";
+        }
+        return formatted;
+    };
+    // Need a way of keeping the obituary card extended when creating, but un-extending on refresh
     function handleSave() {
         if (!inputValid()) {
             setLoading(true);
             const data = new FormData();
+            setDied(formatDate(died));
+            setBorn(formatDate(born));
             data.append("image", image)
             data.append("name", name)
             data.append("born", born)
@@ -64,6 +82,14 @@ const EditOb = () => {
         return false;
         
     }
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFileName(file.name);
+        } else {
+            setFileName(null);
+        }
+    };
     return ( 
         <>
             <div className="create">
@@ -77,9 +103,12 @@ const EditOb = () => {
                         <img className="textHolder" src={Ob} alt=""/> 
                     <div className="edit-file">
                         <label for="file-upload" class="custom-file-upload">
-                            <p>Select an image for the deceased</p>
+                            <p>
+                                Select and image for the deceased{' '}
+                                {fileName && <span className="highlight">({fileName})</span>}
+                            </p>
                         </label>
-                        <input type="file" accept=".png, .jpg, .jpeg" id="file-upload" onChange={(e) => setImage(e.target.value)}/>
+                        <input type="file" accept=".png, .jpg, .jpeg" id="file-upload" onChange={handleFileChange}/>
                     </div>
                     <div className="edit-name">
                         <input type="name" placeholder="Name of the deceased" onChange={(e) => setName(e.target.value)} required></input>
