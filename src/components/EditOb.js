@@ -4,34 +4,30 @@ import  axios  from "axios";
 import Ob from "../Ob.png";
 const EditOb = () => {
     const navigate = useNavigate();
-    var [obs, setObs] = useOutletContext()[0]; // probably not needed
+    const [obs, setObs] = useOutletContext()[0];
     const [id, setID] = useOutletContext()[1];
+    const [populated, setPopulated] = useOutletContext()[2];
     const [loading, setLoading] = useState(false);
     const [image, setImage] = useState("");
     const [name, setName] = useState("");
     const [born, setBorn] = useState("");
     const [died, setDied] = useState("");
-    var curOb = {
-        image:"",
-        name:"",
-        born:"",
-        died:"",
-        id:""
-    }
     function returnHome() {
         navigate("/");
     }
     function handleSave() {
         if (!inputValid()) {
             setLoading(true);
-            curOb.image = image;
-            curOb.name = name;
-            curOb.born = born;
-            curOb.died = died;
-            curOb.id = id;
+            const data = new FormData();
+            data.append("image", image)
+            data.append("name", name)
+            data.append("born", born)
+            data.append("died", died)
+            data.append("id", id)
+            // Should born and died be formatted here to be the correct date type?
             axios.post(
                 "https://qauzveiybakp6h42xomb6kpjbe0boool.lambda-url.ca-central-1.on.aws/",
-                curOb
+                data
             )
             .then((response) => {
                 console.log(response);
@@ -40,7 +36,18 @@ const EditOb = () => {
             });
             setLoading(false);
             // two ideas: call a function that lives in Layout to fetch data or do it right here right now.
-            navigate("/home");
+            axios.get('https://sxpmm6g35ephjnluz2stawhh7a0lvewi.lambda-url.ca-central-1.on.aws/')
+            .then((response) => {
+                console.log(response);
+                const res = JSON.stringify(response.data);
+                setObs(JSON.parse(res));
+            }, (error) => {
+                console.log(error);
+            });
+            if (!populated) {
+                setPopulated(true);
+            }
+            navigate("/");
         }
         
     }
@@ -51,6 +58,7 @@ const EditOb = () => {
             return true;
         }
         if (image === '' || image === null) {
+            console.log("no image")
             return true;
         }
         return false;
@@ -62,7 +70,7 @@ const EditOb = () => {
                 <div className="exit">
                     <label onClick={returnHome}>X</label>
                 </div>
-                <form className="input-holder">
+                <form className="input-holder" id="formElem">
                     <div className="edit-title">
                         <h1>Create a New Obituary</h1>
                     </div>

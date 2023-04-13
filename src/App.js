@@ -7,9 +7,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route path="/" element={<div className="NA">No Obituary Yet</div>}></Route>
           <Route path="/create" element={<EditOb/>}></Route>
-          <Route path="/home" element={<Home/>}></Route>
         </Route>
       </Routes>
     </BrowserRouter>

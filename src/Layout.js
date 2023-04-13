@@ -1,10 +1,12 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
+import Ob from "./components/Ob"
 import axios from "axios";
 const Layout = () => {
     const [ obs, setObs ] = useState([]);
     const [ id, setId ] = useState();
+    const [ populated, setPopulated ] = useState(false);
     const navigate = useNavigate();
     useEffect(() => {
         // fetch on program load
@@ -16,21 +18,14 @@ const Layout = () => {
         }, (error) => {
             console.log(error);
         });
+        console.log(obs.length);
+        if (obs.length > 0) {
+            setPopulated(true);
+        }
     }, [])
     function newOb() {
         const id = uuidv4();
-        const template = {
-            id: id,
-            image:"",
-            name:"",
-            born:"",
-            died:"",
-            description:""
-        }
         setId(id);
-        setObs((prevObs) => {
-            return [template, ...prevObs];
-        });
         navigate('/create');
     }
     return (
@@ -44,7 +39,23 @@ const Layout = () => {
                 </div>
             </div>
             <div className="content">
-                <Outlet context={[[obs, setObs], [id, setId]]}/>
+                <Outlet context={[[obs, setObs], [id, setId], [populated, setPopulated]]}/>
+            </div>
+            <div className="obituaries">
+                {
+                    populated ? <div className="NA">No Obituary Yet</div> :
+                    obs.map((ob) => (
+                        <Ob
+                            id = {ob.id}
+                            name = {ob.name}
+                            born = {ob.born_year}
+                            died = {ob.died_year}
+                            image_url = {ob.image_url}
+                            obituary = {ob.obituary}
+                            speech_url = {ob.speech_url}
+                        /> 
+                    ))
+                }
             </div>
         </> 
      );
