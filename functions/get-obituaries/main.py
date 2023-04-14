@@ -12,16 +12,15 @@ def lambda_handler(event, context):
 
     http_method = event["requestContext"]["http"]["method"].lower()
     if http_method == "get":
-        # Query the DynamoDB table to get the obituaries for the specified email
         response = table.scan()
-
+        sorted_items = sorted(response['Items'], key=lambda k: k['id'])
         # Return the obituaries as a JSON response
         return {
             'statusCode': 200,
             'headers': {
                 'Content-Type': 'application/json'
             },
-            'body': json.dumps(response['Items'])
+            'body': sorted_items
         }
     
     else:
