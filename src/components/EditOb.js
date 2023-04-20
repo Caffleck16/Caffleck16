@@ -59,7 +59,7 @@ const EditOb = () => {
                 );
                 console.log(responsePost);
                 setObs((obs) => {
-                    return [...obs, JSON.parse(JSON.stringify(responsePost.body))];
+                    return [...obs, JSON.parse(JSON.stringify(responsePost.data))];
                 });
                 if (!populated) {
                     setPopulated(true);
@@ -70,6 +70,7 @@ const EditOb = () => {
                 
             } finally {
                 setLoading(false);
+                navigate("/");
             }
             
         }
