@@ -6,10 +6,12 @@ import axios from "axios";
 const Layout = () => {
     const [ obs, setObs ] = useState([]);
     const [ id, setId ] = useState();
+    const [ loading, setLoading] = useState(false);
     const [ populated, setPopulated ] = useState(true);
     const navigate = useNavigate();
     // on inital load
     useEffect(() => {
+        setLoading(true);
         console.log(obs);
         const fetch = async () => {
             try {
@@ -26,6 +28,7 @@ const Layout = () => {
         if (!(obs.length > 0)) {
             setPopulated(false);
         }
+        setLoading(false);
     }, []);
 
     useEffect(() => {
@@ -61,7 +64,8 @@ const Layout = () => {
             </div>
             <div className="obituaries">
                 {
-                    !populated ? <div className="NA">No Obituary Yet</div> :
+                    !populated && !loading ? <div className="NA">No Obituary Yet</div> :
+                    loading ? <div class="lds-ring"><div></div><div></div><div></div><div></div></div> :
                     <>
                         <div className="col1">
                            {obs.map((ob, index) => (
