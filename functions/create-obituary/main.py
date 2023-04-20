@@ -118,29 +118,27 @@ def lambda_handler(event, context):
 
         # add the e_art:zorro enhancement to the image URL
         image_url = image_url.replace('/upload/', '/upload/e_art:zorro/')
-        
+        #create item to put
+        item = {
+            'id' : id,
+            'name': name,
+            'born_year': born_year,
+            'died_year': died_year,
+            'obituary': chatgpt_obituary,
+            'speech_url': speech_url,
+            'image_url': image_url
+        }
         # create a new item in the DynamoDB table
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('obituaries-30145805')
         table.put_item(
-            Item={
-                'id' : id,
-                'name': name,
-                'born_year': born_year,
-                'died_year': died_year,
-                'obituary': chatgpt_obituary,
-                'speech_url': speech_url,
-                'image_url': image_url
-            }
+            Item=item
         )
 
         # return a success response
-        response_body = {
-            "message": "Obituary created successfully"
-        }
         response = {
             "statusCode": 200,
-            "body": json.dumps(response_body),
+            "body": json.dumps(item),
             "headers": {
                 "Content-Type": "application/json"
             }
