@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 const Ob = ({ newOb, id, name, born, died, image_url, obituary, speech_url }) => {
-    const [selected, setSelected] = useState(false);
+    const [selected, setSelected] = useState(() => {
+        if (newOb == id) {
+            return true;
+        } else {
+            return false;
+        }
+    });
     const [symbol, setSymbol] = useState("&#9654;");
     const [audio, setAudio] = useState(new Audio(speech_url));
     useEffect(() => {
@@ -8,10 +14,7 @@ const Ob = ({ newOb, id, name, born, died, image_url, obituary, speech_url }) =>
         audio.onended = () => {
             setSymbol("&#9654;");
         }
-        if (id == newOb) {
-            console.log("newOb");
-            setSelected(true);
-        } 
+
     }, []);
     const handleClick = () => {
         console.log(audio.paused);

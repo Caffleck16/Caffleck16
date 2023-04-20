@@ -229,6 +229,10 @@ input[type="file"] {
   cursor: pointer;
   margin-bottom: 15px;
 }
+.audioPlayer:hover {
+  background-color: rgb(82, 82, 82);
+  color: white;
+}
 .highlight {
   background-color: lightgrey;
   

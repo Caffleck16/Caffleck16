@@ -35,18 +35,11 @@ const EditOb = () => {
 
     // Need a way of keeping the obituary card extended when creating, but un-extending on refresh
     async function handleSave() {
-        setBorn(formatDate(born));
-        setDied(formatDate(died));
-        console.log(image);
-        console.log(name);
-        console.log(born);
-        console.log(died);
-        console.log(id);
+        
         if (!inputValid()) {
             setLoading(true);
             const data = new FormData();
-            setDied(formatDate(died))
-            setBorn(formatDate(born))
+
             data.append("image", image);
             data.append("name", name);
             data.append("born", formatDate(born));
@@ -82,7 +75,7 @@ const EditOb = () => {
             console.log("input incorrect");
             return true;
         }
-        if (image === '' || image === null) {
+        if (!fileName) {
             console.log("no image")
             return true;
         }
@@ -113,11 +106,11 @@ const EditOb = () => {
                     <div className="edit-file">
                         <label for="file-upload" className="custom-file-upload">
                             <p>
-                                Select and image for the deceased{' '}
+                                Select an image for the deceased{' '}
                                 {fileName && <span className="highlight">({fileName})</span>}
                             </p>
                         </label>
-                        <input type="file" accept=".png, .jpg, .jpeg" id="file-upload" onChange={handleFileChange}/>
+                        <input type="file" accept=".png, .jpg, .jpeg" name="fileUpload" id="file-upload" onChange={handleFileChange} required></input>
                     </div>
                     <div className="edit-name">
                         <input type="name" placeholder="Name of the deceased" onChange={(e) => setName(e.target.value)} required></input>
