@@ -8,6 +8,7 @@ const Layout = () => {
     const [ id, setId ] = useState();
     const [ populated, setPopulated ] = useState(true);
     const navigate = useNavigate();
+    // on inital load
     useEffect(() => {
         console.log(obs);
         const fetch = async () => {
@@ -42,7 +43,6 @@ const Layout = () => {
         } else {
             setId(1);
         }
-        setId(id);
         navigate('/create');
     }
     return (
@@ -66,6 +66,7 @@ const Layout = () => {
                            {obs.map((ob, index) => (
                             index % 4 == 0 ? 
                             <Ob
+                                newOb = {id}
                                 id = {ob.id}
                                 name = {ob.name}
                                 born = {ob.born_year}
@@ -80,6 +81,7 @@ const Layout = () => {
                             {obs.map((ob, index) => (
                             index % 4 == 1 ? 
                             <Ob
+                                newOb = {id}
                                 id = {ob.id}
                                 name = {ob.name}
                                 born = {ob.born_year}
@@ -94,6 +96,7 @@ const Layout = () => {
                             {obs.map((ob, index) => (
                             index % 4 == 2 ? 
                             <Ob
+                                newOb = {id}
                                 id = {ob.id}
                                 name = {ob.name}
                                 born = {ob.born_year}
@@ -108,6 +111,7 @@ const Layout = () => {
                             {obs.map((ob, index) => (
                             index % 4 == 3 ? 
                             <Ob
+                                newOb = {id}
                                 id = {ob.id}
                                 name = {ob.name}
                                 born = {ob.born_year}

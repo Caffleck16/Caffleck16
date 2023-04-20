@@ -58,15 +58,12 @@ const EditOb = () => {
                     data
                 );
                 console.log(responsePost);
-                const responseGet = await  axios.get('https://sxpmm6g35ephjnluz2stawhh7a0lvewi.lambda-url.ca-central-1.on.aws/');
-                console.log(responseGet); 
-                const res = JSON.stringify(responseGet.data);
-                setObs(JSON.parse(res));
-
+                setObs((obs) => {
+                    return [...obs, JSON.parse(JSON.stringify(responsePost.body))];
+                });
                 if (!populated) {
                     setPopulated(true);
                 }
-                navigate("/");
             } catch (error) {
                 console.log(error) 
                 alert("an error occured")

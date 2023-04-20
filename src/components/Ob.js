@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
-const Ob = ({ id, name, born, died, image_url, obituary, speech_url }) => {
-    const [selected, setSelected] = useState(true);
+const Ob = ({ newOb, id, name, born, died, image_url, obituary, speech_url }) => {
+    const [selected, setSelected] = useState(() => {
+        if (id === newOb) {
+            return true;
+        } else {
+            return false;
+        }
+    });
     const [symbol, setSymbol] = useState("&#9654;");
     const [audio, setAudio] = useState(new Audio(speech_url));
     useEffect(() => {
