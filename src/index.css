@@ -56,8 +56,13 @@ input[type="file"] {
   justify-content: center;
 }
 .NA {
+  width: 100%;
+  display:flex;
+  justify-content: center;
   font-weight: bolder;
+  align-self: center;
   color: rgba(172, 172, 172, 0.507);
+  text-align: center;
 }
 .create {
   transition: background-color 0.5s ease;
@@ -83,7 +88,6 @@ input[type="file"] {
   color: grey;
   float: right;
 }
-
 .exit label {
   cursor: pointer;
 }

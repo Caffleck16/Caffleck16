@@ -37,7 +37,11 @@ const Layout = () => {
     }, [obs]);
 
     function newOb() {
-        const id = uuidv4();
+        if (obs.length > 0) {
+            setId(obs.length + 1);
+        } else {
+            setId(1);
+        }
         setId(id);
         navigate('/create');
     }
