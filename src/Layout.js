@@ -43,6 +43,7 @@ const Layout = () => {
         } else {
             setId(1);
         }
+        console.log(id);
         navigate('/create');
     }
     return (
