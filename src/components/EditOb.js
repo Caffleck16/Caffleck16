@@ -37,8 +37,8 @@ const EditOb = () => {
 
     // Need a way of keeping the obituary card extended when creating, but un-extending on refresh
     async function handleSave() {
-        setFormattedBorn(formatDate(born));
-        setFormattedDied(formatDate(died));
+        setBorn(formatDate(born));
+        setDied(formatDate(died));
         console.log(image);
         console.log(name);
         console.log(born);
