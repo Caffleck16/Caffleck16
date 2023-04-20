@@ -21,9 +21,7 @@ const EditOb = () => {
     const options = {
         year: "numeric",
         month: "long",
-        day: "numeric",
-        hour: "numeric",
-        minute: "numeric",
+        day: "numeric"
     };
     
     const formatDate = (when) => {
