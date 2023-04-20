@@ -14,8 +14,7 @@ const EditOb = () => {
     const [name, setName] = useState("");
     const [born, setBorn] = useState("");
     const [died, setDied] = useState(() => new Date(time.getTime() - time.getTimezoneOffset() * 60000).toISOString().slice(0, 19));
-    const [formattedBorn, setFormattedBorn] = useState("");
-    const [formattedDied, setFormattedDied] = useState("");
+
     function returnHome() {
         navigate("/");
     }
@@ -35,6 +34,7 @@ const EditOb = () => {
         }
         return formatted;
     };
+
     // Need a way of keeping the obituary card extended when creating, but un-extending on refresh
     async function handleSave() {
         setFormattedBorn(formatDate(born));
@@ -47,12 +47,12 @@ const EditOb = () => {
         if (!inputValid()) {
             setLoading(true);
             const data = new FormData();
-            console.log(formattedBorn);
-            console.log(formattedDied);
+            setDied(formatDate(died))
+            setBorn(formatDate(born))
             data.append("image", image);
             data.append("name", name);
-            data.append("born", formattedBorn);
-            data.append("died", formattedDied);
+            data.append("born", formatDate(born));
+            data.append("died", formatDate(died));
             data.append("id", id);
             try {
                 const responsePost = await axios.post(
