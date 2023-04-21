@@ -1,6 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
 import Ob from "./components/Ob"
 import axios from "axios";
 const Layout = () => {
@@ -21,14 +20,15 @@ const Layout = () => {
                 setObs(JSON.parse(data));
             } catch (error) {
                 console.log(error);
+            } finally {
+                console.log(obs.length);
+                if (!(obs.length > 0)) {
+                    setPopulated(false);
+                }
+                setLoading(false);
             }
         }
         fetch();
-        console.log(obs.length);
-        if (!(obs.length > 0)) {
-            setPopulated(false);
-        }
-        setLoading(false);
     }, []);
 
     useEffect(() => {
@@ -64,8 +64,8 @@ const Layout = () => {
             </div>
             <div className="obituaries">
                 {
-                    !populated && !loading ? <div className="NA">No Obituary Yet</div> :
                     loading ? <div class="lds-ring"><div></div><div></div><div></div><div></div></div> :
+                    !populated ? <div className="NA">No Obituary Yet</div> :
                     <>
                         <div className="col1">
                            {obs.map((ob, index) => (
