@@ -1,7 +1,5 @@
 import json
-import requests
 import boto3
-from requests_toolbelt import MultipartEncoder
 # add your get-obituaries function here
 # Set the AWS endpoint URL
 dynamodb_resource = boto3.resource("dynamodb")
@@ -13,7 +11,7 @@ def lambda_handler(event, context):
     http_method = event["requestContext"]["http"]["method"].lower()
     if http_method == "get":
         response = table.scan()
-        sorted_items = sorted(response['Items'], key=lambda k: k['id'])
+        sorted_items = sorted(response['Items'], key=lambda k: int(k['id']))
         # Return the obituaries as a JSON response
         return {
             'statusCode': 200,

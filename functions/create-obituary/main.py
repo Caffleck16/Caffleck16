@@ -3,9 +3,7 @@ import json
 import requests
 from requests_toolbelt.multipart import decoder
 import base64
-from boto3.session import Session
 import os
-import hmac
 import time
 import hashlib
 
